@@ -1,18 +1,34 @@
-import { useState } from 'react'
-import Nav from './components/Nav'
-import Foot from './components/Foot'
+import { Routes, Route } from 'react-router-dom';
+import Nav from './components/Nav';
+import Foot from './components/Foot';
+import CartPage from './pages/CartPage';
+import Shop from './components/Shop';
+import './index.css';
 
 function App() {
-
   return (
-    <>
-      <div className="flex flex-col items-center justify-center h-screen">
-        <Nav />
-        <h2>MarketPlace Shoes</h2>
-        <Foot />
-      </div >
-    </>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="w-full bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <Nav />
+        </div>
+      </header>
+
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Shop />} />
+          <Route path="/shopping-cart" element={<CartPage />} />
+        </Routes>
+      </main>
+
+      <footer className="w-full bg-white border-t border-gray-100 mt-10">
+        <div className="max-w-7xl mx-auto px-8">
+          <Foot />
+        </div>
+      </footer>
+
+    </div>
   )
 }
 
-export default App
+export default App;
