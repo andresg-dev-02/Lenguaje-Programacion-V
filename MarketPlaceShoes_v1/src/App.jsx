@@ -7,6 +7,7 @@ function App() {
     <>
       <div>
         <Nav />
+        <h2>MarketPlace Shoes</h2>
       </div >
     </>
   )
