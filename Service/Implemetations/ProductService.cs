@@ -2,64 +2,134 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketPlace.Dtos;
 using MarketPlace.Models;
 using MarketPlace.Repository.Interface;
 using MarketPlace.Service.Interface;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketPlace.Service.Implemetations
 {
     public class ProductService : IProductService
     {
         private readonly IGenericRepository<Producto> _productRepository;
+        private readonly IGenericRepository<Categoria> _categoryRepository;
 
-        public ProductService(IGenericRepository<Producto> productRepository)
+        public ProductService(IGenericRepository<Producto> productRepository,IGenericRepository<Categoria> categoryRepository )
         {
             _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
-       public async Task<IEnumerable<Producto>> GetAllProductsAsync()
-            => await _productRepository.GetAllAsync();
-
-        public async Task<Producto?> GetProductByIdAsync(int id)
-            => await _productRepository.FirstOrDefaultAsync(p => p.Id == id);
-
-        public async Task<IEnumerable<Producto>> GetProductsByCategoryAsync(int categoryId)
-            => await _productRepository.FindAsync(p => p.CategoriaId == categoryId);
-
-        public async Task<IEnumerable<Producto>> GetActiveProductsAsync()
-            => await _productRepository.FindAsync(p => p.Activo == true);
-
-        public async Task<string> CreateProductAsync(Producto product)
+       public async Task<IEnumerable<ProductsDto>> GetAllProductsAsync()
         {
-            bool exists = await _productRepository.ExistsAsync(p => p.Nombre == product.Nombre);
-            if (exists)
-                return "A product with that name already exists.";
+            var products = await _productRepository.GetDbSet()
+            .Include(p => p.Categoria)
+            .ToListAsync();
 
-            product.CreadoEn = DateTime.UtcNow;
-            product.Activo ??= true;
+            if (products == null)
+                return Enumerable.Empty<ProductsDto>();
 
-            return await _productRepository.AddAsync(product);
+        
+            return products.Select(p => new ProductsDto
+            {
+                Id = p.Id,
+                Nombre = p.Nombre ?? string.Empty,
+                Descripcion = p.Descripcion ?? string.Empty,
+                Precio = p.Precio,
+                Stock = p.Stock ?? 0,
+                ImagenUrl = p.ImagenUrl ?? string.Empty,
+                Activo = p.Activo ?? true,
+                CategoriaNombre = p.Categoria?.Nombre ?? string.Empty
+            });
+            
         }
 
-        public async Task<string> UpdateProductAsync(Producto product)
+        public async Task<ResultDto> GetProductByIdAsync(int id)
         {
-            bool exists = await _productRepository.ExistsAsync(p => p.Id == product.Id);
-            if (!exists)
-                return $"Product with ID {product.Id} not found.";
-
-            return await _productRepository.UpdateAsync(product);
+             var product = await _productRepository.GetDbSet()
+            .Include(p => p.Categoria)
+            .FirstOrDefaultAsync(p => p.Id == id);
+            if (product == null)
+                return new ResultDto { IsSuccess = false, Message = "Product not found." };
+            return new ResultDto
+            {
+                IsSuccess = true,
+                Message = "Product found.",
+                Data = new ProductsDto
+                {
+                Id = product.Id,
+                Nombre = product.Nombre ?? string.Empty,
+                Descripcion = product.Descripcion ?? string.Empty,
+                Precio = product.Precio,
+                Stock = product.Stock ?? 0,
+                ImagenUrl = product.ImagenUrl ?? string.Empty,
+                Activo = product.Activo ?? true,
+                CategoriaNombre = product.Categoria?.Nombre ?? string.Empty
+                }
+            };
         }
 
-        public async Task<string> DeleteProductAsync(int id)
+        public async Task<ResultDto> CreateProductAsync(ProductoDto productoDto)
+        {
+            var productDb = await _productRepository.FirstOrDefaultAsync(p => p.Nombre == productoDto.Nombre);
+            var categoryDb  =  await _categoryRepository.FirstOrDefaultAsync(p => p.Nombre == productoDto.CategoriaNombre);
+            if (categoryDb == null)
+                return new ResultDto { IsSuccess = false, Message = "name category not found." };
+            if (productDb == null)
+                return new ResultDto { IsSuccess = false, Message = "name product not found." };
+            var product = new Producto
+            {
+                Nombre = productoDto.Nombre,
+                Descripcion = productoDto.Descripcion,
+                Precio = productoDto.Precio,
+                Stock = productoDto.Stock,
+                ImagenUrl = productoDto.ImagenUrl,
+                Activo = productoDto.Activo,
+                CategoriaId = categoryDb?.Id ?? 0,
+                CreadoEn = DateTime.Now              
+            };
+
+
+           return await _productRepository.AddAsync(product);
+        }
+
+        public async Task<ResultDto> UpdateProductAsync(int id,ProductoDto productoDto)
+        {
+             var productDb = await _productRepository.FirstOrDefaultAsync(p => p.Id == id);
+            var categoryDb  =  await _categoryRepository.FirstOrDefaultAsync(p => p.Nombre == productoDto.CategoriaNombre);
+            if (productDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Product name not found." };
+
+            if (categoryDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Category name not found." };
+
+            var product = new Producto
+            {
+                Nombre = productoDto.Nombre,
+                Descripcion = productoDto.Descripcion,
+                Precio = productoDto.Precio,
+                Stock = productoDto.Stock,
+                ImagenUrl = productoDto.ImagenUrl,
+                Activo = productoDto.Activo,
+                CategoriaId = categoryDb?.Id ?? 0,
+            };
+            await _productRepository.UpdateAsync(product);
+            return new ResultDto { IsSuccess = true, Message = "Product updated successfully." };
+
+        }
+
+        public async Task<ResultDto> DeleteProductAsync(int id)
         {
             bool exists = await _productRepository.ExistsAsync(p => p.Id == id);
             if (!exists)
-                return $"Product with ID {id} not found.";
+                return new ResultDto { IsSuccess = false, Message = $"Product not found." };
 
-            return await _productRepository.DeleteAsync(p => p.Id == id);
+            await _productRepository.DeleteAsync(p => p.Id == id);
+            return new ResultDto { IsSuccess = true, Message = "Product deleted successfully." };
         }
 
-        public async Task<bool> ProductExistsAsync(int id)
-            => await _productRepository.ExistsAsync(p => p.Id == id);
+        
     }
 }

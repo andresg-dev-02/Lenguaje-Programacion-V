@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MarketPlace.Data;
+using MarketPlace.Dtos;
 using MarketPlace.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,34 +27,37 @@ namespace MarketPlace.Repository.Implementations
             return await _dbSet.AsNoTracking().ToListAsync();
         }
 
-        public async Task<string> AddAsync(T entity)
+        public async Task<ResultDto> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
             var result = await _context.SaveChangesAsync();
-            return result > 0 ? "Entity added successfully" : "Entity not added";
+            return result > 0 ? new ResultDto { IsSuccess = true, Message = "Entity added successfully" } : new ResultDto { IsSuccess = false, Message = "Entity not added" };
         }
 
-        public async Task<string> UpdateAsync(T entity)
+        
+        public async Task<ResultDto> UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
            var result = await _context.SaveChangesAsync();
 
-            return result > 0 ? "Entity updated successfully" : "Entity not updated";
+            return result > 0 ? new ResultDto { IsSuccess = true, Message = "Entity updated successfully" } : new ResultDto { IsSuccess = false, Message = "Entity not updated" };
         }
 
-        public async Task<string> DeleteAsync(Expression<Func<T, bool>> predicate)
+        public async Task<ResultDto> DeleteAsync(Expression<Func<T, bool>> predicate)
         {
             var entity = await _dbSet.FirstOrDefaultAsync(predicate);
             if (entity == null)
             {
-                return "Entity not found";
+                return new ResultDto { IsSuccess = false, Message = "Entity not found" };
             }
             _dbSet.Remove(entity);
             var result = await _context.SaveChangesAsync();
 
-            return result > 0 ? "Entity deleted successfully" : "Entity not deleted";
+            return result > 0 ? new ResultDto { IsSuccess = true, Message = "Entity deleted successfully" } : new ResultDto { IsSuccess = false, Message = "Entity not deleted" };
         }
 
+       public DbSet<T> GetDbSet() => _dbSet;
+       
          public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
