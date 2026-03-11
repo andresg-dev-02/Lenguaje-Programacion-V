@@ -3,6 +3,9 @@ import Nav from './components/Nav';
 import Foot from './components/Foot';
 import CartPage from './pages/CartPage';
 import Shop from './components/Shop';
+import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import './index.css';
 
 function App() {
@@ -14,10 +17,13 @@ function App() {
         </div>
       </header>
 
-      <main className="flex-grow">
+      <main className="grow">
         <Routes>
           <Route path="/" element={<Shop />} />
           <Route path="/shopping-cart" element={<CartPage />} />
+
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPage /></ProtectedRoute>} />
         </Routes>
       </main>
 

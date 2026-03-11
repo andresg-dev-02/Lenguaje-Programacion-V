@@ -1,10 +1,11 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
 
 const Nav = () => {
     const { cartData } = useContext(CartContext);
+    const { isAuthenticated, user, login, logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
     return (
@@ -30,11 +31,28 @@ const Nav = () => {
                             Tienda
                         </a>
                     </li>
-                    <li>
-                        <a className="text-[#D1D5DB] hover:text-gray-500 font-bold text-lg uppercase tracking-wider transition-colors cursor-pointer">
-                            Iniciar Sesión
-                        </a>
-                    </li>
+                    {isAuthenticated ? (
+                        <>
+                            <li>
+                                <a onClick={() => navigate('/profile')} className="text-[#D1D5DB] hover:text-gray-500 font-bold text-lg uppercase tracking-wider transition-colors cursor-pointer">
+                                    Perfil
+                                </a>
+                            </li>
+                            {user?.role === 'admin' && (
+                                <li>
+                                    <a onClick={() => navigate('/admin')} className="text-[#D1D5DB] hover:text-gray-500 font-bold text-lg uppercase tracking-wider transition-colors cursor-pointer">
+                                        Admin
+                                    </a>
+                                </li>
+                            )}
+                        </>
+                    ) : (
+                        <li>
+                            <a onClick={login} className="text-[#D1D5DB] hover:text-gray-500 font-bold text-lg uppercase tracking-wider transition-colors cursor-pointer">
+                                Iniciar Sesión
+                            </a>
+                        </li>
+                    )}
                 </ul>
             </div>
 

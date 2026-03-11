@@ -7,11 +7,11 @@ const CardsShoes = ({ shoe }) => {
     if (!shoe) return null;
     return (
         <div className="flex flex-col group cursor-pointer bg-white w-full h-full">
-            <div className="relative bg-[#EBEDEE] aspect-[3/4] flex items-center justify-center overflow-hidden transition-all group-hover:bg-[#E2E4E5]">
+            <div className="relative bg-[#EBEDEE] aspect-3/4 flex items-center justify-center overflow-hidden transition-all group-hover:bg-[#E2E4E5]">
                 <img
                     src={shoe.image}
                     alt={shoe.name}
-                    className="object-contain w-full h-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover w-full h-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                 />
                 <button
                     onClick={() => addToCart(shoe)}
