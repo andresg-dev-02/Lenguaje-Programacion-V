@@ -22,13 +22,9 @@ public partial class MarketPlaceContext : DbContext
 
     public virtual DbSet<Direccione> Direcciones { get; set; }
 
-    public virtual DbSet<EstadosFactura> EstadosFacturas { get; set; }
-
     public virtual DbSet<EstadosPago> EstadosPagos { get; set; }
 
     public virtual DbSet<EstadosPedido> EstadosPedidos { get; set; }
-
-    public virtual DbSet<Factura> Facturas { get; set; }
 
     public virtual DbSet<MetodosPago> MetodosPagos { get; set; }
 
@@ -79,12 +75,11 @@ public partial class MarketPlaceContext : DbContext
 
             entity.HasOne(d => d.Pedido).WithMany(p => p.DetallePedidos)
                 .HasForeignKey(d => d.PedidoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("detalle_pedidos_pedido_id_fkey");
 
             entity.HasOne(d => d.Producto).WithMany(p => p.DetallePedidos)
                 .HasForeignKey(d => d.ProductoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("detalle_pedidos_producto_id_fkey");
         });
 
@@ -122,21 +117,6 @@ public partial class MarketPlaceContext : DbContext
                 .HasConstraintName("direcciones_usuario_id_fkey");
         });
 
-        modelBuilder.Entity<EstadosFactura>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("estados_factura_pkey");
-
-            entity.ToTable("estados_factura");
-
-            entity.HasIndex(e => e.Nombre, "estados_factura_nombre_key").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(50)
-                .HasColumnName("nombre");
-        });
-
         modelBuilder.Entity<EstadosPago>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("estados_pago_pkey");
@@ -165,37 +145,6 @@ public partial class MarketPlaceContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .HasColumnName("nombre");
-            entity.Property(e => e.Orden).HasColumnName("orden");
-        });
-
-        modelBuilder.Entity<Factura>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("facturas_pkey");
-
-            entity.ToTable("facturas");
-
-            entity.HasIndex(e => e.PagoId, "facturas_pago_id_key").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.EstadoId).HasColumnName("estado_id");
-            entity.Property(e => e.Fecha)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("fecha");
-            entity.Property(e => e.PagoId).HasColumnName("pago_id");
-            entity.Property(e => e.Total)
-                .HasPrecision(10, 2)
-                .HasColumnName("total");
-
-            entity.HasOne(d => d.Estado).WithMany(p => p.Facturas)
-                .HasForeignKey(d => d.EstadoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("facturas_estado_id_fkey");
-
-            entity.HasOne(d => d.Pago).WithOne(p => p.Factura)
-                .HasForeignKey<Factura>(d => d.PagoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("facturas_pago_id_fkey");
         });
 
         modelBuilder.Entity<MetodosPago>(entity =>
@@ -229,9 +178,6 @@ public partial class MarketPlaceContext : DbContext
                 .HasPrecision(10, 2)
                 .HasColumnName("monto");
             entity.Property(e => e.PedidoId).HasColumnName("pedido_id");
-            entity.Property(e => e.ReferenciaExterna)
-                .HasMaxLength(100)
-                .HasColumnName("referencia_externa");
 
             entity.HasOne(d => d.Estado).WithMany(p => p.Pagos)
                 .HasForeignKey(d => d.EstadoId)

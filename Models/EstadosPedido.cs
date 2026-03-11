@@ -11,7 +11,5 @@ public partial class EstadosPedido
 
     public string? Descripcion { get; set; }
 
-    public int? Orden { get; set; }
-
     public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 }

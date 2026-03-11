@@ -17,11 +17,7 @@ public partial class Pago
 
     public DateTime Fecha { get; set; }
 
-    public string? ReferenciaExterna { get; set; }
-
     public virtual EstadosPago Estado { get; set; } = null!;
-
-    public virtual Factura? Factura { get; set; }
 
     public virtual MetodosPago MetodoPago { get; set; } = null!;
 
