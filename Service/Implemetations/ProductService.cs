@@ -105,17 +105,15 @@ namespace MarketPlace.Service.Implemetations
             if (categoryDb == null)
                 return new ResultDto { IsSuccess = false, Message = "Category name not found." };
 
-            var product = new Producto
-            {
-                Nombre = productoDto.Nombre,
-                Descripcion = productoDto.Descripcion,
-                Precio = productoDto.Precio,
-                Stock = productoDto.Stock,
-                ImagenUrl = productoDto.ImagenUrl,
-                Activo = productoDto.Activo,
-                CategoriaId = categoryDb?.Id ?? 0,
-            };
-            await _productRepository.UpdateAsync(product);
+            productDb.Nombre = productoDto.Nombre;
+            productDb.Descripcion = productoDto.Descripcion;
+            productDb.Precio = productoDto.Precio;
+            productDb.Stock = productoDto.Stock;
+            productDb.ImagenUrl = productoDto.ImagenUrl;
+            productDb.Activo = productoDto.Activo;
+            productDb.CategoriaId = categoryDb?.Id ?? 0;
+            
+            await _productRepository.UpdateAsync(productDb);
             return new ResultDto { IsSuccess = true, Message = "Product updated successfully." };
 
         }

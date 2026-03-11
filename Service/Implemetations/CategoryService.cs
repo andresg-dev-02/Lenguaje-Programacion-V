@@ -4,35 +4,74 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarketPlace.Dtos;
 using MarketPlace.Dtos.CategoriesDto;
+using MarketPlace.Models;
+using MarketPlace.Repository.Interface;
 using MarketPlace.Service.Interface;
 
 namespace MarketPlace.Service.Implemetations
 {
     public class CategoryService : ICategoryService
     {
-        public Task<ResultDto> CreateCategoryAsync(CategoryDto Category)
+        private readonly IGenericRepository<Categoria> _categoryRepository;
+
+        public CategoryService(IGenericRepository<Categoria> categoryRepository)
         {
-            throw new NotImplementedException();
+            _categoryRepository = categoryRepository;
+        }
+        public async Task<ResultDto> CreateCategoryAsync(CategoryDto Category)
+        {
+            var categoryDb = await _categoryRepository.FirstOrDefaultAsync(p => p.Nombre == Category.Nombre);
+            if (categoryDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Category name not found." };
+
+            var category = new Categoria
+            {
+                Nombre = Category.Nombre,
+                Descripcion = Category.Descripcion,
+            };
+
+            return await _categoryRepository.AddAsync(category);
         }
 
-        public Task<ResultDto> DeleteCategoryAsync(int id)
+        public async Task<ResultDto> DeleteCategoryAsync(int id)
         {
-            throw new NotImplementedException();
+            var categoryDb = await _categoryRepository.FirstOrDefaultAsync(p => p.Id == id);
+            if (categoryDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Category not found." };
+
+            return await _categoryRepository.DeleteAsync(p => p.Id == id);
         }
 
-        public Task<IEnumerable<CategoriesDto>> GetAllCategoriessAsync()
+        public async Task<IEnumerable<CategoriesDto>> GetAllCategoriessAsync()
         {
-            throw new NotImplementedException();
+            var categoriesDb = await _categoryRepository.GetAllAsync();
+            return categoriesDb.Select(p => new CategoriesDto
+            {
+                Id = p.Id,
+                Nombre = p.Nombre,
+                Descripcion = p.Descripcion,
+            });
         }
 
-        public Task<ResultDto> GetCategoryByIdAsync(int id)
+        public async Task<ResultDto> GetCategoryByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var categoryDb = await _categoryRepository.FirstOrDefaultAsync(p => p.Id == id);
+            if (categoryDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Category not found." };
+
+            return new ResultDto { IsSuccess = true, Message = "Category found." , Data = categoryDb};
         }
 
-        public Task<ResultDto> UpdateCategoryAsync(int id, CategoryDto Category)
+        public async Task<ResultDto> UpdateCategoryAsync(int id, CategoryDto Category)
         {
-            throw new NotImplementedException();
+            var categoryDb = await _categoryRepository.FirstOrDefaultAsync(p => p.Id == id);
+            if (categoryDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Category not found." };
+
+            categoryDb.Nombre = Category.Nombre;
+            categoryDb.Descripcion = Category.Descripcion;
+
+            return await _categoryRepository.UpdateAsync(categoryDb);
         }
     }
 }
