@@ -73,12 +73,9 @@ namespace MarketPlace.Service.Implemetations
 
         public async Task<ResultDto> CreateProductAsync(ProductoDto productoDto)
         {
-            var productDb = await _productRepository.FirstOrDefaultAsync(p => p.Nombre == productoDto.Nombre);
             var categoryDb  =  await _categoryRepository.FirstOrDefaultAsync(p => p.Nombre == productoDto.CategoriaNombre);
             if (categoryDb == null)
                 return new ResultDto { IsSuccess = false, Message = "name category not found." };
-            if (productDb == null)
-                return new ResultDto { IsSuccess = false, Message = "name product not found." };
             var product = new Producto
             {
                 Nombre = productoDto.Nombre,

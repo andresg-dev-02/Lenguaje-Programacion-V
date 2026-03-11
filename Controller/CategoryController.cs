@@ -45,7 +45,7 @@ namespace MarketPlace.Controller
         {
             try
             {
-                if(ModelState.IsValid)
+                if(!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
@@ -68,7 +68,7 @@ namespace MarketPlace.Controller
         {
             try
             {
-                if(ModelState.IsValid)
+                if(!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
