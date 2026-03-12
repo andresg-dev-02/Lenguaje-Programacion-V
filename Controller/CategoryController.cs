@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using MarketPlace.Dtos;
 using MarketPlace.Dtos.CategoriesDto;
 using MarketPlace.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketPlace.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -20,6 +22,7 @@ namespace MarketPlace.Controller
             _categoryService = categoryService;
         }
 
+        [AllowAnonymous]
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCategories()
         {

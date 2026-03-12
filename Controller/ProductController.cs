@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using MarketPlace.Dtos;
 using MarketPlace.Models;
 using MarketPlace.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketPlace.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -19,6 +21,8 @@ namespace MarketPlace.Controller
         {
             _productService = productService;
         }
+
+        [AllowAnonymous]
         [HttpGet("GetAllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
