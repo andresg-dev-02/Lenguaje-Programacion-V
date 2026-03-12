@@ -21,7 +21,7 @@ namespace MarketPlace.Controller
         }
 
         [HttpGet("GetAllCategories")]
-        public async Task<ActionResult<IEnumerable<CategoriesDto>>> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
             try
             {
@@ -38,10 +38,28 @@ namespace MarketPlace.Controller
             }
         }
 
+        [HttpGet("GetCategoryById/{id:int}")]
+        public async Task<IActionResult> GetCategoryById(int id)
+        {
+            try
+            {
+                var result = await _categoryService.GetCategoryByIdAsync(id);
+                if (!result.IsSuccess)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error." });
+            }
+        }
+
         
 
         [HttpPost]
-        public async Task<ActionResult<CategoriesDto>> CreateCategory(CategoryDto categoryDto)
+        public async Task<ActionResult> CreateCategory(CategoryDto categoryDto)
         {
             try
             {
@@ -64,7 +82,7 @@ namespace MarketPlace.Controller
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<CategoriesDto>> UpdateCategory(int id, CategoryDto categoryDto)
+        public async Task<ActionResult> UpdateCategory(int id, CategoryDto categoryDto)
         {
             try
             {
@@ -87,7 +105,7 @@ namespace MarketPlace.Controller
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<CategoriesDto>> DeleteCategory(int id)
+        public async Task<ActionResult> DeleteCategory(int id)
         {
             try
             {

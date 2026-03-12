@@ -55,8 +55,17 @@ namespace MarketPlace.Service.Implemetations
             var categoryDb = await _categoryRepository.FirstOrDefaultAsync(p => p.Id == id);
             if (categoryDb == null)
                 return new ResultDto { IsSuccess = false, Message = "Category not found." };
-
-            return new ResultDto { IsSuccess = true, Message = "Category found." , Data = categoryDb};
+            return new ResultDto
+            {
+                IsSuccess = true,
+                Message = "Category found.",
+                Data = new CategoriesDto
+                {
+                    Id = categoryDb.Id,
+                    Nombre = categoryDb.Nombre,
+                    Descripcion = categoryDb.Descripcion,
+                }
+            };
         }
 
         public async Task<ResultDto> UpdateCategoryAsync(int id, CategoryDto Category)

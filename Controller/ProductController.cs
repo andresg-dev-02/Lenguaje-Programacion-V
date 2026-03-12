@@ -37,6 +37,24 @@ namespace MarketPlace.Controller
             }
         }
 
+        [HttpGet("GetProductById/{id:int}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            try
+            {
+                var     result = await _productService.GetProductByIdAsync(id);
+                if (!result.IsSuccess)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error" });
+            }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductoDto productoDto)
