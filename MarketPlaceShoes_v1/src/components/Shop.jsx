@@ -4,7 +4,7 @@ import CardsShoes from '../components/CardsShoes';
 import { ProductsContext } from '../context/ProductsContext';
 
 const Shop = () => {
-    const { shoes } = useContext(ProductsContext);
+    const { shoes, loading, error } = useContext(ProductsContext);
     const navigate = useNavigate();
 
     return (
@@ -63,14 +63,24 @@ const Shop = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {shoes.map((item) => (
-                        <div key={item.id} className="h-full">
-                            <CardsShoes shoe={item} />
+                    {loading ? (
+                        <div className="col-span-full text-center py-20 text-gray-400">
+                            <p className="text-xl animate-pulse">Cargando productos...</p>
                         </div>
-                    ))}
+                    ) : error ? (
+                        <div className="col-span-full text-center py-20 text-red-400">
+                            <p className="text-xl">Error al cargar productos: {error}</p>
+                        </div>
+                    ) : (
+                        shoes.map((item) => (
+                            <div key={item.id} className="h-full">
+                                <CardsShoes shoe={item} />
+                            </div>
+                        ))
+                    )}
                 </div>
 
-                {shoes.length === 0 && (
+                {!loading && !error && shoes.length === 0 && (
                     <div className="text-center py-20 text-gray-400 bg-gray-50 rounded-2xl">
                         Aún no hay productos en la tienda. Visita el panel de administración para añadir algunos.
                     </div>

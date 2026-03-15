@@ -9,8 +9,8 @@ const CardsShoes = ({ shoe }) => {
         <div className="flex flex-col group cursor-pointer bg-white w-full h-full">
             <div className="relative bg-[#EBEDEE] aspect-3/4 flex items-center justify-center overflow-hidden transition-all group-hover:bg-[#E2E4E5]">
                 <img
-                    src={shoe.image}
-                    alt={shoe.name}
+                    src={`https://lenguaje-programacion-v-1.onrender.com/${shoe.imagenUrl}`}
+                    alt={shoe.nombre}
                     className="object-cover w-full h-full mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                 />
                 <button
@@ -37,10 +37,10 @@ const CardsShoes = ({ shoe }) => {
 
             <div className="flex flex-col pt-4 pb-2 px-1">
                 <h2 className="text-[13px] leading-tight text-black mt-1.5 uppercase font-normal tracking-wide">
-                    {shoe.name}
+                    {shoe.nombre}
                 </h2>
                 <span className="text-black font-bold text-sm tracking-tight">
-                    ${shoe.price.toLocaleString('de-DE')}
+                    ${shoe.precio.toLocaleString('de-DE')}
                 </span>
 
                 <p className="text-gray-400 text-[12px] mt-1.5 font-medium">
