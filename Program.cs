@@ -8,27 +8,27 @@ using MarketPlace.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
-
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Configuración de Base de Datos
 builder.Services.AddDbContext<MarketPlaceContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 2. Configuración de CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
-
+// 3. Configuración de Autenticación (JWT)
 var key = builder.Configuration["Jwt:Key"];
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -44,6 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// 4. Inyección de Dependencias
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -51,8 +52,9 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddControllers();
-builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
+
+// 5. Configuración de Swagger
 builder.Services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo
@@ -72,9 +74,19 @@ builder.Services.AddSwaggerGen(s =>
         Description = "Enter your JWT token"
     });
 
-    s.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    s.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 
     s.OperationFilter<AuthOperationFilter>();
@@ -82,8 +94,10 @@ builder.Services.AddSwaggerGen(s =>
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
-// Configure the HTTP request pipeline.
+// ========================================================================
+// ⚠️ PIPELINE DE MIDDLEWARES (EL ORDEN AQUÍ ES CRÍTICO)
+// ========================================================================
+
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
@@ -94,16 +108,20 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     });
 }
 
+// Paso A: Redirigir a HTTPS
 app.UseHttpsRedirection();
+
+// Paso B: Habilitar el enrutamiento (Buena práctica explícita en .NET)
+app.UseRouting();
+
+// Paso C: CORS (¡Debe ir exactamente aquí! Después de Routing y antes de Auth)
+app.UseCors("AllowAll");
+
+// Paso D: Autenticación y Autorización
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Paso E: Mapear los controladores
 app.MapControllers();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-
 
 app.Run();
