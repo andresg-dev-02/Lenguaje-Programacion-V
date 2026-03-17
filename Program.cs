@@ -12,6 +12,9 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+
 // 1. Configuración de Base de Datos
 builder.Services.AddDbContext<MarketPlaceContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
