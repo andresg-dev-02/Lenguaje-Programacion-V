@@ -34,6 +34,8 @@ public partial class MarketPlaceContext : DbContext
 
     public virtual DbSet<Producto> Productos { get; set; }
 
+    public virtual DbSet<Refreshtoken> Refreshtokens { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
@@ -261,6 +263,29 @@ public partial class MarketPlaceContext : DbContext
             entity.HasOne(d => d.Categoria).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.CategoriaId)
                 .HasConstraintName("productos_categoria_id_fkey");
+        });
+
+        modelBuilder.Entity<Refreshtoken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("refreshtokens_pkey");
+
+            entity.ToTable("refreshtokens");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Expiration)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("expiration");
+            entity.Property(e => e.Isrevoked)
+                .HasDefaultValue(false)
+                .HasColumnName("isrevoked");
+            entity.Property(e => e.Token)
+                .HasMaxLength(500)
+                .HasColumnName("token");
+            entity.Property(e => e.Userid).HasColumnName("userid");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Refreshtokens)
+                .HasForeignKey(d => d.Userid)
+                .HasConstraintName("fk_user");
         });
 
         modelBuilder.Entity<Role>(entity =>

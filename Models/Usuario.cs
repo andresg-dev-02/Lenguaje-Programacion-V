@@ -23,5 +23,7 @@ public partial class Usuario
 
     public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 
+    public virtual ICollection<Refreshtoken> Refreshtokens { get; set; } = new List<Refreshtoken>();
+
     public virtual Role? Rol { get; set; }
 }
