@@ -4,7 +4,7 @@ import api from '../api/axiosInstance';
 export const ProductsContext = createContext();
 
 export const ProductsProvider = ({ children }) => {
-    const [shoes, setShoes] = useState([]);
+    const [shoes, setShoes] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -28,17 +28,43 @@ export const ProductsProvider = ({ children }) => {
         fetchProducts();
     }, []);
 
-    const addShoe = (newShoe) => {
-        // Placeholder for future API integration
-        setShoes([...shoes, { ...newShoe, id: Date.now() }]);
+    const addShoe = async (newShoe) => {
+        try {
+            const response = await api.post('Product', newShoe, { useAuth: true });
+            if (response.data.isSuccess) {
+                await fetchProducts();
+                return { success: true };
+            }
+            return { success: false, message: response.data.message };
+        } catch (err) {
+            return { success: false, message: err.message };
+        }
     };
 
-    const updateShoe = (id, updatedData) => {
-        setShoes(shoes.map(shoe => shoe.id === id ? { ...shoe, ...updatedData } : shoe));
+    const updateShoe = async (id, updatedData) => {
+        try {
+            const response = await api.put(`Product/${id}`, updatedData, { useAuth: true });
+            if (response.data.isSuccess) {
+                await fetchProducts();
+                return { success: true };
+            }
+            return { success: false, message: response.data.message };
+        } catch (err) {
+            return { success: false, message: err.message };
+        }
     };
 
-    const deleteShoe = (id) => {
-        setShoes(shoes.filter(shoe => shoe.id !== id));
+    const deleteShoe = async (id) => {
+        try {
+            const response = await api.delete(`Product/${id}`, { useAuth: true });
+            if (response.data.isSuccess) {
+                setShoes(shoes.filter(shoe => shoe.id !== id));
+                return { success: true };
+            }
+            return { success: false, message: response.data.message };
+        } catch (err) {
+            return { success: false, message: err.message };
+        }
     };
 
     return (
