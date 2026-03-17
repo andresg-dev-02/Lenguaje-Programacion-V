@@ -10,17 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
-// 1. Configuración de Base de Datos
 builder.Services.AddDbContext<MarketPlaceContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Configuración de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -31,8 +25,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 3. Configuración de Autenticación (JWT)
 var key = builder.Configuration["Jwt:Key"];
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -48,7 +42,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// 4. Inyección de Dependencias
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -56,9 +49,9 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddControllers();
+builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 
-// 5. Configuración de Swagger
 builder.Services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo
@@ -78,19 +71,9 @@ builder.Services.AddSwaggerGen(s =>
         Description = "Enter your JWT token"
     });
 
-    s.AddSecurityRequirement(new OpenApiSecurityRequirement
+    s.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 
     s.OperationFilter<AuthOperationFilter>();
@@ -98,10 +81,7 @@ builder.Services.AddSwaggerGen(s =>
 
 var app = builder.Build();
 
-// ========================================================================
-// ⚠️ PIPELINE DE MIDDLEWARES (EL ORDEN AQUÍ ES CRÍTICO)
-// ========================================================================
-
+// 2. EL ORDEN CORRECTO DE MIDDLEWARES PARA ARREGLAR CORS
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
@@ -112,20 +92,14 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     });
 }
 
-// Paso A: Redirigir a HTTPS
 app.UseHttpsRedirection();
-
-// Paso B: Habilitar el enrutamiento (Buena práctica explícita en .NET)
 app.UseRouting();
 
-// Paso C: CORS (¡Debe ir exactamente aquí! Después de Routing y antes de Auth)
+// CORS DEBE IR AQUÍ (Entre Routing y Authentication)
 app.UseCors("AllowAll");
 
-// Paso D: Autenticación y Autorización
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Paso E: Mapear los controladores
 app.MapControllers();
 
 app.Run();
