@@ -15,5 +15,7 @@ public partial class Refreshtoken
 
     public bool? Isrevoked { get; set; }
 
+    public string Tokenprincipalid { get; set; } = null!;
+
     public virtual Usuario User { get; set; } = null!;
 }

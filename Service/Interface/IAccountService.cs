@@ -11,6 +11,6 @@ namespace MarketPlace.Service.Interface
     {
         Task<ResultDto> RegisterAsync(UserRegisterDto userRegisterDto);
         Task<ResultDto> LoginAsync(UserDto userDto);
-        Task<ResultDto> LogoutAsync();
+        Task<ResultDto> LogoutAsync(string refreshToken);
     }
 }

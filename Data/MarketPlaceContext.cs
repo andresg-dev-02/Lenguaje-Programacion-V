@@ -281,6 +281,9 @@ public partial class MarketPlaceContext : DbContext
             entity.Property(e => e.Token)
                 .HasMaxLength(500)
                 .HasColumnName("token");
+            entity.Property(e => e.Tokenprincipalid)
+                .HasMaxLength(100)
+                .HasColumnName("tokenprincipalid");
             entity.Property(e => e.Userid).HasColumnName("userid");
 
             entity.HasOne(d => d.User).WithMany(p => p.Refreshtokens)
