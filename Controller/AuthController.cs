@@ -86,14 +86,14 @@ namespace MarketPlace.Controller
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshTokenAsync([FromBody] string refreshToken)
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequestDto refreshTokenRequestDto)
         {
            try
            {
-            if(string.IsNullOrEmpty(refreshToken))
-                return BadRequest(new ResultDto { IsSuccess = false, Message = "void refresh token" });
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
             
-            var result = await _jwtService.RefreshTokenAsync(refreshToken);
+            var result = await _jwtService.RefreshTokenAsync(refreshTokenRequestDto.RefreshToken);
             if (result.IsSuccess)
                 return Ok(result);
             
