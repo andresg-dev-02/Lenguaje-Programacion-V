@@ -67,7 +67,7 @@ namespace MarketPlace.Security
         public async Task<ResultDto> RefreshTokenAsync(string refreshToken)
         {
             var tokenDB = await _refreshTokenRepository.FirstOrDefaultAsync(t => t.Token == refreshToken);
-            if (tokenDB == null || tokenDB.Expiration < DateTime.Now || tokenDB.Isrevoked == true)
+            if (tokenDB == null || tokenDB.Expiration < DateTime.UtcNow || tokenDB.Isrevoked == true)
                 return new ResultDto { IsSuccess = false, Message = "Invalid refresh token." };
 
             var user = await _userRepository.FirstOrDefaultAsync(u => u.Id == tokenDB.Userid);
