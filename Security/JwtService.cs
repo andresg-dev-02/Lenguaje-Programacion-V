@@ -57,7 +57,7 @@ namespace MarketPlace.Security
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpireMinutes"]!)),
+                expires: DateTime.Now.AddMinutes(double.Parse(_configuration["Jwt:ExpireMinutes"]!)),
                 signingCredentials: credentials
             );
 
@@ -85,7 +85,7 @@ namespace MarketPlace.Security
                 Userid = tokenDB.Userid,
                 Token = newRefreshToken,
                 Tokenprincipalid = TokenPrincipalId,
-                Expiration = DateTime.UtcNow.AddDays(7),
+                Expiration = DateTime.Now.AddDays(7),
                 Isrevoked = false
             });
 
