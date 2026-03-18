@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-var key = builder.Configuration["Jwt:Key"] ?? throw new Exception("CRITICAL: 'Jwt:Key' no encontrado en la configuración.");
+var key = builder.Configuration["Jwt:Key"] ?? throw new Exception("CRITICAL: 'Jwt:Key' no encontrado en la configuración."); 
  
 
 builder.Services.AddAuthentication(options =>
