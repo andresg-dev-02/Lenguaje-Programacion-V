@@ -91,7 +91,7 @@ namespace MarketPlace.Controller
            try
            {
             if(!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(ModelState); 
             
             var result = await _jwtService.RefreshTokenAsync(refreshTokenRequestDto.RefreshToken);
             if (result.IsSuccess)
