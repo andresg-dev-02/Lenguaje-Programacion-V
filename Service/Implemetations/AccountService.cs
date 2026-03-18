@@ -51,7 +51,7 @@ namespace MarketPlace.Service.Implemetations
                 Userid = userDb.Id,
                 Token = refreshToken,
                 Tokenprincipalid = TokenPrincipalId,
-                Expiration = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpireMinutes"]!)),
+                Expiration = DateTime.Now.AddMinutes(double.Parse(_configuration["Jwt:ExpireMinutes"]!)),
                 Isrevoked = false
             });
 
