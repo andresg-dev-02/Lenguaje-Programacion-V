@@ -10,6 +10,7 @@ using MarketPlace.Dtos;
 using MarketPlace.Models;
 using MarketPlace.Repository.Interface;
 using MarketPlace.Security.Interface;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MarketPlace.Security
@@ -70,8 +71,8 @@ namespace MarketPlace.Security
             if (tokenDB == null || tokenDB.Expiration < DateTime.Now || tokenDB.Isrevoked == true)
                 return new ResultDto { IsSuccess = false, Message = "Invalid refresh token." };
 
-            var user = await _userRepository.FirstOrDefaultAsync(u => u.Id == tokenDB.Userid);
-            if (user == null)
+            var user = await _userRepository.GetDbSet().AsNoTracking().Include(u => u.Rol).FirstOrDefaultAsync(u => u.Id == tokenDB.Userid);
+            if (user == null || user.Activo == false || user.RolId <= 0 || user.Rol == null)
                 return new ResultDto { IsSuccess = false, Message = "User not found." };
             
             tokenDB.Isrevoked = true;

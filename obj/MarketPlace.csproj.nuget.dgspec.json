@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj": {}
+    "C:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj": {}
   },
   "projects": {
-    "c:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj": {
+    "C:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj",
+        "projectUniqueName": "C:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj",
         "projectName": "MarketPlace",
-        "projectPath": "c:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj",
+        "projectPath": "C:\\Users\\Asotol\\Desktop\\MarketPlace\\MarketPlace.csproj",
         "packagesPath": "C:\\Users\\Asotol\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\Asotol\\Desktop\\MarketPlace\\obj\\",
+        "outputPath": "C:\\Users\\Asotol\\Desktop\\MarketPlace\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

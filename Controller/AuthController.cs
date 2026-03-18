@@ -102,7 +102,7 @@ namespace MarketPlace.Controller
            catch (Exception ex)
            {
                 
-                return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Error string session" });
+                return StatusCode(500, new ResultDto { IsSuccess = false, Message = $"Error string session {ex.Message}" });
            }
         }
     }
