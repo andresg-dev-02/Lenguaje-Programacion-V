@@ -9,17 +9,20 @@ const ProfilePage = () => {
         { id: 'ORD-002', date: '2023-11-02', total: 620000, status: 'En camino' },
     ];
 
+
+
+
     return (
         <div className="max-w-4xl mx-auto p-8 min-h-screen">
             <h1 className="text-4xl font-black text-orange-500 mb-8 uppercase">Mi Perfil</h1>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8 flex items-center gap-6">
-                <img src={user.avatar} alt={user.name} className="w-24 h-24 rounded-full" />
+                <img src={user?.avatar || 'https://ui-avatars.com/api/?name=User'} alt={user?.name || 'User'} className="w-24 h-24 rounded-full" />
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
-                    <p className="text-gray-500">{user.email}</p>
+                    <h2 className="text-2xl font-bold text-gray-800">{user?.name || 'Usuario'}</h2>
+                    <p className="text-gray-500">{user?.email || 'user@example.com'}</p>
                     <span className="inline-block mt-2 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                        {user.role}
+                        {user?.role || 'User'}
                     </span>
                 </div>
                 <button onClick={logout} className="ml-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-6 rounded-full transition-colors text-sm">

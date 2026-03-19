@@ -13,7 +13,6 @@ const Nav = () => {
     return (
         <nav className="bg-white border-b border-gray-100 px-6 md:px-16 py-5 sticky top-0 z-50 backdrop-blur-md bg-white/90">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
-                {/* Logo Section */}
                 <div className="flex items-center gap-12">
                     <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
                         <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-orange-500 transition-transform group-hover:rotate-12">
@@ -25,7 +24,6 @@ const Nav = () => {
                         <span className="text-xl font-black italic uppercase tracking-tighter">Market<span className="text-orange-500">Shoes</span></span>
                     </div>
 
-                    {/* Desktop Menu */}
                     <ul className="hidden md:flex items-center gap-8">
                         <li>
                             <button onClick={() => navigate('/')} className="text-gray-400 hover:text-black font-bold text-xs uppercase tracking-widest transition-colors">Inicio</button>

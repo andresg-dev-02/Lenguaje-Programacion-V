@@ -14,7 +14,7 @@ const LoginPage = () => {
 
         //Andres, Aqui debes de llamar la funcion que valida.
         const result = await login(email, password);
-        
+
         if (result.success) {
             navigate('/');
         } else {
@@ -95,7 +95,7 @@ const LoginPage = () => {
 
                     <footer className="text-center pt-8 border-t border-gray-50">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                            ¿No tienes una cuenta? <button className="text-orange-500 hover:underline">Regístrate</button>
+                            ¿No tienes una cuenta? <button className="text-orange-500 hover:underline" onClick={() => navigate('/register')}>Regístrate</button>
                         </p>
                     </footer>
                 </div>

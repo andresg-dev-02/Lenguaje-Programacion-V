@@ -8,7 +8,6 @@ export const CartProvider = ({ children }) => {
         return savedCart ? JSON.parse(savedCart) : { items: [] };
     });
 
-    // Guardar en LocalStorage automáticamente
     useEffect(() => {
         localStorage.setItem('cart_shoes', JSON.stringify(cartData));
     }, [cartData]);
