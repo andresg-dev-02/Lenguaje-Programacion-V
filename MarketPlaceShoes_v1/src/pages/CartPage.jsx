@@ -1,8 +1,42 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
+import { finalizeOrder } from '../services/orderServices';
 
 const CartPage = () => {
-    const { cartData, updateQuantity, removeFromCart, totalPrice, totalItems } = useContext(CartContext);
+    const { cartData, updateQuantity, removeFromCart, totalPrice, totalItems, clearCart } = useContext(CartContext);
+    const { user } = useContext(AuthContext);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const handleFinalizeOrder = async () => {
+        if (!user || !user.id) {
+            alert("Debes iniciar sesión para finalizar el pedido.");
+            return;
+        }
+
+        if (cartData.items.length === 0) return;
+
+        setIsProcessing(true);
+        try {
+            // Processing each item as a separate order as per the DTO request
+            // If there's a batch endpoint, this logic should be updated.
+            for (const item of cartData.items) {
+                const orderDto = {
+                    idCustomer: user.id,
+                    idShoe: item.id,
+                    amoutShoe: item.quantity
+                };
+                await finalizeOrder(orderDto);
+            }
+
+            alert("¡Pedido realizado con éxito!");
+            clearCart();
+        } catch (error) {
+            alert("Hubo un error al procesar tu pedido. Por favor, intenta de nuevo.");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
     return (
         <div className="max-w-7xl mx-auto p-6 md:p-12 bg-white min-h-screen">
@@ -108,10 +142,11 @@ const CartPage = () => {
                             </div>
 
                             <button
-                                disabled={cartData.items.length === 0}
-                                className={`w-full font-black py-5 rounded-2xl mt-10 transition-all uppercase tracking-widest text-lg shadow-xl shadow-orange-100 ${cartData.items.length > 0 ? 'bg-orange-500 hover:bg-orange-600 text-white transform hover:-translate-y-1' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                                onClick={handleFinalizeOrder}
+                                disabled={cartData.items.length === 0 || isProcessing}
+                                className={`w-full font-black py-5 rounded-2xl mt-10 transition-all uppercase tracking-widest text-lg shadow-xl shadow-orange-100 ${cartData.items.length > 0 && !isProcessing ? 'bg-orange-500 hover:bg-orange-600 text-white transform hover:-translate-y-1' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
                             >
-                                Finalizar Pedido
+                                {isProcessing ? 'Procesando...' : 'Finalizar Pedido'}
                             </button>
 
                             <p className="text-[10px] text-gray-400 font-medium text-center mt-4">

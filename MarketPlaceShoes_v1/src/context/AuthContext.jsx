@@ -47,8 +47,10 @@ export const AuthProvider = ({ children }) => {
 
                 const emailClaim = payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || email;
                 const roleClaim = payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'User';
+                const idClaim = payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload?.nameid;
 
                 const userData = {
+                    id: idClaim,
                     email: emailClaim,
                     name: emailClaim.split('@')[0],
                     role: roleClaim,

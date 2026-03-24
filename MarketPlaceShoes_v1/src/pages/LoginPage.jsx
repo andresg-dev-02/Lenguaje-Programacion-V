@@ -100,7 +100,7 @@ const LoginPage = () => {
                     </footer>
                 </div>
             </div>
-        </div>
+        </div>  
     );
 };
 
