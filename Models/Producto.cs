@@ -24,6 +24,4 @@ public partial class Producto
     public DateTime? CreadoEn { get; set; }
 
     public virtual Categoria? Categoria { get; set; }
-
-    public virtual ICollection<DetallePedido> DetallePedidos { get; set; } = new List<DetallePedido>();
 }
