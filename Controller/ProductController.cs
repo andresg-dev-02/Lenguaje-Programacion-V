@@ -150,7 +150,7 @@ namespace MarketPlace.Controller
                 return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error" });
             }
         }
-        [AllowAnonymous]
+        [Authorize("admin")]
         [HttpGet("GetHistorySale/{idCustomer:int}")]
         public async Task<IActionResult> GetHistorySale(int idCustomer)
         {
@@ -159,6 +159,26 @@ namespace MarketPlace.Controller
                 if (idCustomer <= 0)
                     return BadRequest(new { message = "Id is required" });
                 var result = await _historySaleService.GetHistorySaleAsync(idCustomer);
+                if (!result.IsSuccess)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error" });
+            }
+        }
+
+        [Authorize("admin")]
+        [HttpGet("GetAllHistorySale")]
+        
+        public async Task<IActionResult> GetAllHistorySale()
+        {
+            try
+            {
+                var result = await _historySaleService.GetAllHistorySale();
                 if (!result.IsSuccess)
                 {
                     return NotFound(result);

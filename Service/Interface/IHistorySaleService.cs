@@ -12,5 +12,6 @@ namespace MarketPlace.Service.Interface
     {
         Task<ResultDto> CreateHistorySaleAsync(Historialventum historySale);
         Task<ResultDto> GetHistorySaleAsync(int idCustomer);
+        Task<ResultDto> GetAllHistorySale();
     }
 }

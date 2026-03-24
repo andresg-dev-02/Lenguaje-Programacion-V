@@ -29,8 +29,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-var key = builder.Configuration["Jwt:Key"] ?? throw new Exception("CRITICAL: 'Jwt:Key' no encontrado en la configuración."); 
- 
+var key = builder.Configuration["Jwt:Key"] ?? throw new Exception("CRITICAL: 'Jwt:Key' no encontrado en la configuración.");
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -52,14 +52,14 @@ builder.Services.AddAuthentication(options =>
 
         options.Events = new JwtBearerEvents
         {
-           OnTokenValidated = async context =>
-           {
-            var tokenPrincipalId = context.Principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
-            var refreshTokenRepository = context.HttpContext.RequestServices.GetRequiredService<IGenericRepository<Refreshtoken>>();
-            var tokenDB = await refreshTokenRepository.FirstOrDefaultAsync(t => t.Tokenprincipalid == tokenPrincipalId);
-            if (tokenDB == null || tokenDB.Expiration < DateTime.Now || tokenDB.Isrevoked == true)
-                context.Fail("Invalid token");
-           }
+            OnTokenValidated = async context =>
+            {
+                var tokenPrincipalId = context.Principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                var refreshTokenRepository = context.HttpContext.RequestServices.GetRequiredService<IGenericRepository<Refreshtoken>>();
+                var tokenDB = await refreshTokenRepository.FirstOrDefaultAsync(t => t.Tokenprincipalid == tokenPrincipalId);
+                if (tokenDB == null || tokenDB.Expiration < DateTime.Now || tokenDB.Isrevoked == true)
+                    context.Fail("Invalid token");
+            }
         };
     });
 
@@ -72,7 +72,14 @@ builder.Services.AddScoped<IHistorySaleService, HistorySaleService>();
 
 
 builder.Services.AddControllers();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("admin", policy =>
+        policy.RequireRole("admin"));
+
+    options.AddPolicy("comprador", policy =>
+        policy.RequireRole("comprador"));
+});
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(s =>
