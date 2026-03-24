@@ -18,6 +18,8 @@ public partial class MarketPlaceContext : DbContext
 
     public virtual DbSet<Categoria> Categorias { get; set; }
 
+    public virtual DbSet<Historialventum> Historialventa { get; set; }
+
     public virtual DbSet<Producto> Productos { get; set; }
 
     public virtual DbSet<Refreshtoken> Refreshtokens { get; set; }
@@ -25,6 +27,10 @@ public partial class MarketPlaceContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=dpg-d6o3a3p4tr6s73efs5fg-a.oregon-postgres.render.com;Database=marketplace_bd;Username=marketplace_bd_user;Password=nHXorQl6hAVBRyn0l7WguLtsvOHXMXKS;Port=5432;SSL Mode=Require;Trust Server Certificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +47,34 @@ public partial class MarketPlaceContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<Historialventum>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("historialventa_pkey");
+
+            entity.ToTable("historialventa");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Cantidad).HasColumnName("cantidad");
+            entity.Property(e => e.Fecha)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha");
+            entity.Property(e => e.Imagenproducto)
+                .HasMaxLength(255)
+                .HasColumnName("imagenproducto");
+            entity.Property(e => e.Nombreproducto)
+                .HasMaxLength(255)
+                .HasColumnName("nombreproducto");
+            entity.Property(e => e.Total)
+                .HasPrecision(10, 2)
+                .HasColumnName("total");
+            entity.Property(e => e.Usuarioid).HasColumnName("usuarioid");
+
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Historialventa)
+                .HasForeignKey(d => d.Usuarioid)
+                .HasConstraintName("fk_historial_usuario");
         });
 
         modelBuilder.Entity<Producto>(entity =>

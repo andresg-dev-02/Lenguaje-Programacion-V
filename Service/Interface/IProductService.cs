@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketPlace.Dtos;
+using MarketPlace.Dtos.SaleDto;
 using MarketPlace.Models;
 
 namespace MarketPlace.Service.Interface
@@ -15,6 +16,7 @@ namespace MarketPlace.Service.Interface
         Task<ResultDto> CreateProductAsync(ProductoDto product);
         Task<ResultDto> UpdateProductAsync(int id,ProductoDto product);
         Task<ResultDto> DeleteProductAsync(int id);
+        Task<ResultDto> ProcessSaleAsync(SaleDto saleDto);
 
     }
 }

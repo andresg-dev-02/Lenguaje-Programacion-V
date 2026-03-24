@@ -19,6 +19,8 @@ public partial class Usuario
 
     public DateTime? CreadoEn { get; set; }
 
+    public virtual ICollection<Historialventum> Historialventa { get; set; } = new List<Historialventum>();
+
     public virtual ICollection<Refreshtoken> Refreshtokens { get; set; } = new List<Refreshtoken>();
 
     public virtual Role? Rol { get; set; }

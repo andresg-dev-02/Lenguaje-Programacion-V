@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketPlace.Dtos;
+using MarketPlace.Dtos.SaleDto;
 using MarketPlace.Models;
 using MarketPlace.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -16,10 +17,12 @@ namespace MarketPlace.Controller
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IHistorySaleService _historySaleService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, IHistorySaleService historySaleService)
         {
             _productService = productService;
+            _historySaleService = historySaleService;
         }
 
         [AllowAnonymous]
@@ -46,7 +49,7 @@ namespace MarketPlace.Controller
         {
             try
             {
-                var     result = await _productService.GetProductByIdAsync(id);
+                var result = await _productService.GetProductByIdAsync(id);
                 if (!result.IsSuccess)
                 {
                     return NotFound(result);
@@ -94,7 +97,7 @@ namespace MarketPlace.Controller
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var result = await _productService.UpdateProductAsync(id,productoDto);
+                var result = await _productService.UpdateProductAsync(id, productoDto);
                 if (!result.IsSuccess)
                 {
                     return NotFound(result);
@@ -114,6 +117,46 @@ namespace MarketPlace.Controller
             try
             {
                 var result = await _productService.DeleteProductAsync(id);
+                if (!result.IsSuccess)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error" });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ProcessSale")]
+        public async Task<IActionResult> ProcessSale([FromBody] SaleDto saleDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _productService.ProcessSaleAsync(saleDto);
+                if (!result.IsSuccess)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error" });
+            }
+        }
+        [AllowAnonymous]
+        [HttpGet("GetHistorySale/{idCustomer:int}")]
+        public async Task<IActionResult> GetHistorySale(int idCustomer)
+        {
+            try
+            {
+                var result = await _historySaleService.GetHistorySaleAsync(idCustomer);
                 if (!result.IsSuccess)
                 {
                     return NotFound(result);

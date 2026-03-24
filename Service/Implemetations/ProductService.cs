@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketPlace.Dtos;
+using MarketPlace.Dtos.SaleDto;
 using MarketPlace.Models;
 using MarketPlace.Repository.Interface;
 using MarketPlace.Service.Interface;
@@ -15,11 +16,13 @@ namespace MarketPlace.Service.Implemetations
     {
         private readonly IGenericRepository<Producto> _productRepository;
         private readonly IGenericRepository<Categoria> _categoryRepository;
+        private readonly IHistorySaleService _historySaleService;
 
-        public ProductService(IGenericRepository<Producto> productRepository,IGenericRepository<Categoria> categoryRepository )
+        public ProductService(IGenericRepository<Producto> productRepository,IGenericRepository<Categoria> categoryRepository,IHistorySaleService historySaleService )
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _historySaleService = historySaleService;
         }
 
        public async Task<IEnumerable<ProductsDto>> GetAllProductsAsync()
@@ -125,6 +128,28 @@ namespace MarketPlace.Service.Implemetations
             return new ResultDto { IsSuccess = true, Message = "Product deleted successfully." };
         }
 
-        
+        public async Task<ResultDto> ProcessSaleAsync(SaleDto saleDto)
+        {
+            var productDb = await _productRepository.GetDbSet().Include(p => p.Categoria).FirstOrDefaultAsync(p => p.Id == saleDto.idShoe);
+            if (productDb == null)
+                return new ResultDto { IsSuccess = false, Message = "Product not found." };
+
+            if (productDb.Stock < saleDto.amoutShoe)
+                return new ResultDto { IsSuccess = false, Message = "Product out of stock." };
+
+            productDb.Stock -= saleDto.amoutShoe;
+            await _productRepository.UpdateAsync(productDb);
+            var historySale = new Historialventum
+            {
+                Usuarioid = saleDto.idCustomer,
+                Imagenproducto = productDb?.ImagenUrl ?? string.Empty,
+                Nombreproducto = productDb?.Nombre ?? string.Empty,
+                Cantidad = saleDto.amoutShoe,
+                Total = productDb?.Precio * saleDto.amoutShoe ?? 0,
+                Fecha = DateTime.Now
+            };
+            await _historySaleService.CreateHistorySaleAsync(historySale);
+            return new ResultDto { IsSuccess = true, Message = "Product sold successfully." };
+        }
     }
 }
