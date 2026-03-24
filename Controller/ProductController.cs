@@ -156,6 +156,8 @@ namespace MarketPlace.Controller
         {
             try
             {
+                if (idCustomer <= 0)
+                    return BadRequest(new { message = "Id is required" });
                 var result = await _historySaleService.GetHistorySaleAsync(idCustomer);
                 if (!result.IsSuccess)
                 {

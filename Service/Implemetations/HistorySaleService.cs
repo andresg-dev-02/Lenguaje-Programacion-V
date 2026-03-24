@@ -32,7 +32,8 @@ namespace MarketPlace.Service.Implemetations
 
         public async Task<ResultDto> GetHistorySaleAsync(int idCustomer)
         {
-            var historySale = await _historySaleRepository.GetDbSet().Include(h => h.Usuario).Where(h => h.Usuarioid == idCustomer).ToListAsync();
+            _logger.LogInformation($"[HistorySaleService] GetHistorySaleAsync: {JsonSerializer.Serialize(idCustomer)}");
+            var historySale = await _historySaleRepository.GetDbSet().Where(h => h.Usuarioid == idCustomer).ToListAsync();
             _logger.LogInformation($"[HistorySaleService] GetHistorySaleAsync: {JsonSerializer.Serialize(historySale)}");
             if (historySale == null)
                 return new ResultDto { IsSuccess = false, Message = "Historial de venta no encontrado." };
