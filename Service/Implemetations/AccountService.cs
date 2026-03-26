@@ -7,6 +7,7 @@ using MarketPlace.Dtos.AcountDto;
 using MarketPlace.Models;
 using MarketPlace.Repository.Interface;
 using MarketPlace.Security;
+using MarketPlace.Security.Interface;
 using MarketPlace.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,12 +17,18 @@ namespace MarketPlace.Service.Implemetations
     {
 
         private readonly IGenericRepository<Usuario> _userRepository;
-        private readonly JwtService _jwtService;
+        private readonly IJwtService _jwtService;
 
-        public AccountService(IGenericRepository<Usuario> userRepository, JwtService jwtService)
+        private readonly IConfiguration _configuration;
+
+        private readonly IGenericRepository<Refreshtoken> _refreshTokenRepository;
+
+        public AccountService(IGenericRepository<Usuario> userRepository, IJwtService jwtService, IConfiguration configuration, IGenericRepository<Refreshtoken> refreshTokenRepository)
         {
             _userRepository = userRepository;
             _jwtService = jwtService;
+            _configuration = configuration;
+            _refreshTokenRepository = refreshTokenRepository;
         }
         public async Task<ResultDto> LoginAsync(UserDto userDto)
         {
@@ -30,24 +37,42 @@ namespace MarketPlace.Service.Implemetations
             if (userDb == null)
                 return new ResultDto { IsSuccess = false, Message = "User not found." };
 
-           
+
             var verifyPassword = BCrypt.Net.BCrypt.Verify(userDto.Contraseña, userDb.Contraseña);
 
             if (!verifyPassword)
                 return new ResultDto { IsSuccess = false, Message = "Invalid password." };
 
-            var token = _jwtService.GenerateToken(userDb);
+            var token = _jwtService.GenerateToken(userDb, out string TokenPrincipalId);
+            var refreshToken = _jwtService.GenerateRefreshToken();
 
-            return new ResultDto { 
-                IsSuccess = true, 
-                Message = "User logged in successfully.", 
-                Data = token
+            await _refreshTokenRepository.AddAsync(new Refreshtoken
+            {
+                Userid = userDb.Id,
+                Token = refreshToken,
+                Tokenprincipalid = TokenPrincipalId,
+                Expiration = DateTime.Now.AddMinutes(double.Parse(_configuration["Jwt:ExpireMinutes"]!)),
+                Isrevoked = false
+            });
+
+            return new ResultDto
+            {
+                IsSuccess = true,
+                Message = "User logged in successfully.",
+                Data = new { token, refreshToken }
             };
 
         }
-        public async Task<ResultDto> LogoutAsync()
+        public async Task<ResultDto> LogoutAsync(string refreshToken)
         {
-            return new ResultDto { IsSuccess = true, Message = "User logged out successfully." };
+            var tokenDB = await _refreshTokenRepository.FirstOrDefaultAsync(t => t.Token == refreshToken);
+            if (tokenDB != null)
+            {
+                tokenDB.Isrevoked = true;
+                await _refreshTokenRepository.UpdateAsync(tokenDB);
+                return new ResultDto { IsSuccess = true, Message = "User logged out successfully." };
+            }
+            return new ResultDto { IsSuccess = false, Message = "Token not found." };
         }
 
         public async Task<ResultDto> RegisterAsync(UserRegisterDto userRegisterDto)
@@ -73,5 +98,9 @@ namespace MarketPlace.Service.Implemetations
                 return new ResultDto { IsSuccess = false, Message = "Error al registrar el usuario." };
             }
         }
+
+        
+
+
     }
 }

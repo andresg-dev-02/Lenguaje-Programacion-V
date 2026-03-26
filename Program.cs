@@ -1,8 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using MarketPlace.Data;
+using MarketPlace.Models;
 using MarketPlace.Repository.Implementations;
 using MarketPlace.Repository.Interface;
 using MarketPlace.Security;
+using MarketPlace.Security.Interface;
 using MarketPlace.Service.Implemetations;
 using MarketPlace.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,9 +29,14 @@ builder.Services.AddCors(options =>
     });
 });
 
-var key = builder.Configuration["Jwt:Key"];
+var key = builder.Configuration["Jwt:Key"] ?? throw new Exception("CRITICAL: 'Jwt:Key' no encontrado en la configuración.");
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -40,16 +49,40 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var tokenPrincipalId = context.Principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                var refreshTokenRepository = context.HttpContext.RequestServices.GetRequiredService<IGenericRepository<Refreshtoken>>();
+                var tokenDB = await refreshTokenRepository.FirstOrDefaultAsync(t => t.Tokenprincipalid == tokenPrincipalId);
+                if (tokenDB == null || tokenDB.Expiration < DateTime.Now || tokenDB.Isrevoked == true)
+                    context.Fail("Invalid token");
+            }
+        };
     });
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IHistorySaleService, HistorySaleService>();
+
 
 builder.Services.AddControllers();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("admin", policy =>
+        policy.RequireRole("admin"));
+
+    options.AddPolicy("comprador", policy =>
+        policy.RequireRole("comprador"));
+
+    options.AddPolicy("AdminOComprador", policy => 
+        policy.RequireRole("admin", "comprador"));
+});
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(s =>

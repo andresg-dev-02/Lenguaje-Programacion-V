@@ -18,21 +18,11 @@ public partial class MarketPlaceContext : DbContext
 
     public virtual DbSet<Categoria> Categorias { get; set; }
 
-    public virtual DbSet<DetallePedido> DetallePedidos { get; set; }
-
-    public virtual DbSet<Direccione> Direcciones { get; set; }
-
-    public virtual DbSet<EstadosPago> EstadosPagos { get; set; }
-
-    public virtual DbSet<EstadosPedido> EstadosPedidos { get; set; }
-
-    public virtual DbSet<MetodosPago> MetodosPagos { get; set; }
-
-    public virtual DbSet<Pago> Pagos { get; set; }
-
-    public virtual DbSet<Pedido> Pedidos { get; set; }
+    public virtual DbSet<Historialventum> Historialventa { get; set; }
 
     public virtual DbSet<Producto> Productos { get; set; }
+
+    public virtual DbSet<Refreshtoken> Refreshtokens { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -59,174 +49,32 @@ public partial class MarketPlaceContext : DbContext
                 .HasColumnName("nombre");
         });
 
-        modelBuilder.Entity<DetallePedido>(entity =>
+        modelBuilder.Entity<Historialventum>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("detalle_pedidos_pkey");
+            entity.HasKey(e => e.Id).HasName("historialventa_pkey");
 
-            entity.ToTable("detalle_pedidos");
+            entity.ToTable("historialventa");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Cantidad).HasColumnName("cantidad");
-            entity.Property(e => e.PedidoId).HasColumnName("pedido_id");
-            entity.Property(e => e.PrecioUnitario)
-                .HasPrecision(10, 2)
-                .HasColumnName("precio_unitario");
-            entity.Property(e => e.ProductoId).HasColumnName("producto_id");
-
-            entity.HasOne(d => d.Pedido).WithMany(p => p.DetallePedidos)
-                .HasForeignKey(d => d.PedidoId)
-                .HasConstraintName("detalle_pedidos_pedido_id_fkey");
-
-            entity.HasOne(d => d.Producto).WithMany(p => p.DetallePedidos)
-                .HasForeignKey(d => d.ProductoId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .HasConstraintName("detalle_pedidos_producto_id_fkey");
-        });
-
-        modelBuilder.Entity<Direccione>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("direcciones_pkey");
-
-            entity.ToTable("direcciones");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Calle)
-                .HasMaxLength(150)
-                .HasColumnName("calle");
-            entity.Property(e => e.Ciudad)
-                .HasMaxLength(100)
-                .HasColumnName("ciudad");
-            entity.Property(e => e.CodigoPostal)
-                .HasMaxLength(20)
-                .HasColumnName("codigo_postal");
-            entity.Property(e => e.Departamento)
-                .HasMaxLength(100)
-                .HasColumnName("departamento");
-            entity.Property(e => e.EsPrincipal)
-                .HasDefaultValue(false)
-                .HasColumnName("es_principal");
-            entity.Property(e => e.Pais)
-                .HasMaxLength(80)
-                .HasDefaultValueSql("'Colombia'::character varying")
-                .HasColumnName("pais");
-            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
-
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Direcciones)
-                .HasForeignKey(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("direcciones_usuario_id_fkey");
-        });
-
-        modelBuilder.Entity<EstadosPago>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("estados_pago_pkey");
-
-            entity.ToTable("estados_pago");
-
-            entity.HasIndex(e => e.Nombre, "estados_pago_nombre_key").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(50)
-                .HasColumnName("nombre");
-        });
-
-        modelBuilder.Entity<EstadosPedido>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("estados_pedido_pkey");
-
-            entity.ToTable("estados_pedido");
-
-            entity.HasIndex(e => e.Nombre, "estados_pedido_nombre_key").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(50)
-                .HasColumnName("nombre");
-        });
-
-        modelBuilder.Entity<MetodosPago>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("metodos_pago_pkey");
-
-            entity.ToTable("metodos_pago");
-
-            entity.HasIndex(e => e.Nombre, "metodos_pago_nombre_key").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(50)
-                .HasColumnName("nombre");
-        });
-
-        modelBuilder.Entity<Pago>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("pagos_pkey");
-
-            entity.ToTable("pagos");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.EstadoId).HasColumnName("estado_id");
             entity.Property(e => e.Fecha)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha");
-            entity.Property(e => e.MetodoPagoId).HasColumnName("metodo_pago_id");
-            entity.Property(e => e.Monto)
-                .HasPrecision(10, 2)
-                .HasColumnName("monto");
-            entity.Property(e => e.PedidoId).HasColumnName("pedido_id");
-
-            entity.HasOne(d => d.Estado).WithMany(p => p.Pagos)
-                .HasForeignKey(d => d.EstadoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("pagos_estado_id_fkey");
-
-            entity.HasOne(d => d.MetodoPago).WithMany(p => p.Pagos)
-                .HasForeignKey(d => d.MetodoPagoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("pagos_metodo_pago_id_fkey");
-
-            entity.HasOne(d => d.Pedido).WithMany(p => p.Pagos)
-                .HasForeignKey(d => d.PedidoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("pagos_pedido_id_fkey");
-        });
-
-        modelBuilder.Entity<Pedido>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("pedidos_pkey");
-
-            entity.ToTable("pedidos");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.DireccionId).HasColumnName("direccion_id");
-            entity.Property(e => e.EstadoId).HasColumnName("estado_id");
-            entity.Property(e => e.Fecha)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("fecha");
+            entity.Property(e => e.Imagenproducto)
+                .HasMaxLength(255)
+                .HasColumnName("imagenproducto");
+            entity.Property(e => e.Nombreproducto)
+                .HasMaxLength(255)
+                .HasColumnName("nombreproducto");
             entity.Property(e => e.Total)
                 .HasPrecision(10, 2)
                 .HasColumnName("total");
-            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+            entity.Property(e => e.Usuarioid).HasColumnName("usuarioid");
 
-            entity.HasOne(d => d.Direccion).WithMany(p => p.Pedidos)
-                .HasForeignKey(d => d.DireccionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("pedidos_direccion_id_fkey");
-
-            entity.HasOne(d => d.Estado).WithMany(p => p.Pedidos)
-                .HasForeignKey(d => d.EstadoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("pedidos_estado_id_fkey");
-
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Pedidos)
-                .HasForeignKey(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("pedidos_usuario_id_fkey");
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Historialventa)
+                .HasForeignKey(d => d.Usuarioid)
+                .HasConstraintName("fk_historial_usuario");
         });
 
         modelBuilder.Entity<Producto>(entity =>
@@ -261,6 +109,32 @@ public partial class MarketPlaceContext : DbContext
             entity.HasOne(d => d.Categoria).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.CategoriaId)
                 .HasConstraintName("productos_categoria_id_fkey");
+        });
+
+        modelBuilder.Entity<Refreshtoken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("refreshtokens_pkey");
+
+            entity.ToTable("refreshtokens");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Expiration)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("expiration");
+            entity.Property(e => e.Isrevoked)
+                .HasDefaultValue(false)
+                .HasColumnName("isrevoked");
+            entity.Property(e => e.Token)
+                .HasMaxLength(500)
+                .HasColumnName("token");
+            entity.Property(e => e.Tokenprincipalid)
+                .HasMaxLength(100)
+                .HasColumnName("tokenprincipalid");
+            entity.Property(e => e.Userid).HasColumnName("userid");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Refreshtokens)
+                .HasForeignKey(d => d.Userid)
+                .HasConstraintName("fk_user");
         });
 
         modelBuilder.Entity<Role>(entity =>
