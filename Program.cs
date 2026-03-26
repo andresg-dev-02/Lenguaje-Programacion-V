@@ -79,6 +79,9 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("comprador", policy =>
         policy.RequireRole("comprador"));
+
+    options.AddPolicy("AdminOComprador", policy => 
+        policy.RequireRole("admin", "comprador"));
 });
 builder.Services.AddEndpointsApiExplorer();
 

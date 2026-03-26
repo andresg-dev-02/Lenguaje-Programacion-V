@@ -150,7 +150,7 @@ namespace MarketPlace.Controller
                 return StatusCode(500, new ResultDto { IsSuccess = false, Message = "Internal server error" });
             }
         }
-        [Authorize("admin, comprador")]
+        [Authorize(Policy = "AdminOComprador")]
         [HttpGet("GetHistorySale/{idCustomer:int}")]
         public async Task<IActionResult> GetHistorySale(int idCustomer)
         {
@@ -171,9 +171,9 @@ namespace MarketPlace.Controller
             }
         }
 
-        [Authorize("admin")]
+        [Authorize(Policy = "admin")]
         [HttpGet("GetAllHistorySale")]
-        
+
         public async Task<IActionResult> GetAllHistorySale()
         {
             try
